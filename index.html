@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to Word Converter with Gemini AI</title>
+    <title>PDF to MS Word Converter &#13; (+ Gemini 2.5 Flash Tools) </title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- pdf.js for reading PDF files -->
@@ -17,7 +17,7 @@
         /* Set worker source for pdf.js */
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
 
-        /* Abstract Blob Background */
+        /* Abstract Glowing Bubble Background */
         #background-container {
             position: fixed;
             top: 0;
@@ -29,22 +29,58 @@
             z-index: -10;
         }
 
-        .blob {
+        .bubble {
             position: absolute;
             border-radius: 50%;
             opacity: 0.6;
-            animation: move 30s infinite alternate;
+            animation: move 20s infinite alternate; /* Faster base animation */
         }
 
-        .blob-1 { width: 450px; height: 450px; background: #F97316; top: -10%; left: -15%; animation-duration: 25s; }
-        .blob-2 { width: 350px; height: 350px; background: #C026D3; bottom: -15%; right: -20%; animation-duration: 20s; animation-delay: -5s; }
-        .blob-3 { width: 300px; height: 300px; background: #14B8A6; top: 50%; left: 40%; animation-duration: 30s; animation-delay: -10s; }
-        .blob-4 { width: 250px; height: 250px; background: #EAB308; bottom: 20%; left: 10%; animation-duration: 18s; animation-delay: -2s; }
-        .blob-5 { width: 200px; height: 200px; background: #84CC16; top: 10%; right: 5%; animation-duration: 22s; animation-delay: -8s; }
+        /* Define the 8 glowing bubbles */
+        .bubble-1 { width: 300px; height: 300px; background: #F97316; box-shadow: 0 0 50px #F97316; top: -5%; left: -10%; animation-duration: 15s; }
+        .bubble-2 { width: 250px; height: 250px; background: #C026D3; box-shadow: 0 0 50px #C026D3; bottom: -10%; right: -15%; animation-duration: 18s; animation-delay: -5s; }
+        .bubble-3 { width: 200px; height: 200px; background: #14B8A6; box-shadow: 0 0 50px #14B8A6; top: 40%; left: 30%; animation-duration: 22s; animation-delay: -10s; }
+        .bubble-4 { width: 280px; height: 280px; background: #EAB308; box-shadow: 0 0 50px #EAB308; bottom: 15%; left: 5%; animation-duration: 16s; animation-delay: -2s; }
+        .bubble-5 { width: 180px; height: 180px; background: #84CC16; box-shadow: 0 0 50px #84CC16; top: 5%; right: 10%; animation-duration: 20s; animation-delay: -8s; }
+        .bubble-6 { width: 220px; height: 220px; background: #3B82F6; box-shadow: 0 0 50px #3B82F6; top: 60%; right: 20%; animation-duration: 19s; animation-delay: -12s; }
+        .bubble-7 { width: 260px; height: 260px; background: #EC4899; box-shadow: 0 0 50px #EC4899; bottom: 40%; left: 50%; animation-duration: 17s; animation-delay: -4s; }
+        .bubble-8 { width: 190px; height: 190px; background: #6D28D9; box-shadow: 0 0 50px #6D28D9; top: 20%; left: 60%; animation-duration: 21s; animation-delay: -6s; }
+
 
         @keyframes move {
             from { transform: translate(0, 0) rotate(0deg) scale(1); border-radius: 64% 36% 55% 45% / 56% 48% 52% 44%; }
             to { transform: translate(150px, 80px) rotate(180deg) scale(1.2); border-radius: 36% 64% 45% 55% / 48% 56% 44% 52%; }
+        }
+
+        /* Glowing Button Animation */
+        .glowing-button {
+            position: relative;
+            background-size: 200% auto;
+            transition: 0.5s;
+        }
+
+        .glowing-button:hover {
+            background-position: right center; /* change direction of the change here */
+        }
+        
+        .glowing-button::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            z-index: -1;
+            background: inherit;
+            background-size: inherit;
+            border-radius: 1rem; /* Match button's rounded corners */
+            filter: blur(10px);
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .glowing-button:hover::before {
+            opacity: 1;
         }
 
         /* Custom styles for Gemini output */
@@ -56,18 +92,21 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 font-sans flex items-center justify-center min-h-screen overflow-hidden p-4">
+<body class="bg-slate-50 font-sans min-h-screen p-4">
 
     <!-- Background Container -->
     <div id="background-container">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-        <div class="blob blob-4"></div>
-        <div class="blob blob-5"></div>
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+        <div class="bubble bubble-5"></div>
+        <div class="bubble bubble-6"></div>
+        <div class="bubble bubble-7"></div>
+        <div class="bubble bubble-8"></div>
     </div>
 
-    <main class="relative bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg p-6 sm:p-8 md:p-12 w-full max-w-2xl mx-auto transition-all duration-300">
+    <main class="relative bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg p-6 sm:p-8 md:p-12 w-full max-w-2xl mx-auto my-8 transition-all duration-300">
         
         <!-- Header Section -->
         <header class="text-center mb-6 md:mb-8">
@@ -89,11 +128,11 @@
 
         <!-- Action Buttons -->
         <section class="space-y-4 mb-6">
-            <button id="convert-btn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-3 px-12 rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 ease-in-out disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none">Convert to Word</button>
+            <button id="convert-btn" class="glowing-button w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-3 px-12 rounded-lg transition-all duration-300 ease-in-out disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none">Convert to Word</button>
             
             <div id="gemini-actions" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <button id="summarize-btn" class="w-full bg-gradient-to-r from-teal-400 to-blue-500 text-white font-bold py-2 px-6 rounded-lg hover:from-teal-500 hover:to-blue-600 focus:outline-none focus:ring-4 focus:ring-teal-300 transition-all duration-300 ease-in-out disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed">✨ Summarize</button>
-                 <button id="keypoints-btn" class="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold py-2 px-6 rounded-lg hover:from-amber-500 hover:to-orange-600 focus:outline-none focus:ring-4 focus:ring-amber-300 transition-all duration-300 ease-in-out disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed">✨ Extract Key Points</button>
+                 <button id="summarize-btn" class="glowing-button w-full bg-gradient-to-r from-teal-400 via-blue-500 to-cyan-400 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed">✨ Summarize</button>
+                 <button id="keypoints-btn" class="glowing-button w-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed">✨ Extract Key Points</button>
             </div>
         </section>
 
@@ -115,6 +154,19 @@
             <p class="text-xs text-gray-500">
                 Made with ❤️ by Rajat Kumar
             </p>
+            <!-- Social Links -->
+            <div class="flex justify-center items-center space-x-4 pt-2">
+                <a href="https://github.com/rajatkumar1011" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-800 transition-colors duration-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.838 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+                <a href="https://www.linkedin.com/in/rajatkumar7/" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-800 transition-colors duration-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                    </svg>
+                </a>
+            </div>
         </footer>
 
     </main>
@@ -228,10 +280,10 @@
                         }
                         resolve(allTextItems);
                     } catch (error) {
-                        reject(new Error('Could not read PDF. It may be corrupted or password-protected.'));
+                        reject(new Error('Could not read PDF. It may be corrupted or password-protected!'));
                     }
                 };
-                reader.onerror = () => reject(new Error('Failed to read the file.'));
+                reader.onerror = () => reject(new Error('Failed to read the file!'));
                 reader.readAsArrayBuffer(file);
             });
         }
@@ -318,7 +370,7 @@
 
         async function handleSummarize() {
             const plainText = getPlainTextForGemini();
-            if (!plainText) { showError('No text extracted from PDF.'); return; }
+            if (!plainText) { showError('No text extracted from PDF!'); return; }
             const prompt = `Summarize the following document concisely, in clear and easy-to-understand language. Focus on the main arguments and conclusions:\n\n---\n\n${plainText}`;
             geminiOutputTitle.textContent = 'Summary';
             await callGeminiAPI(prompt);
@@ -326,18 +378,18 @@
 
         async function handleKeyPoints() {
             const plainText = getPlainTextForGemini();
-            if (!plainText) { showError('No text extracted from PDF.'); return; }
+            if (!plainText) { showError('No text extracted from PDF!'); return; }
             const prompt = `Extract the key points from the following document as a bulleted list. Each point should be a clear and concise statement:\n\n---\n\n${plainText}`;
             geminiOutputTitle.textContent = 'Key Points';
             await callGeminiAPI(prompt);
         }
 
         async function callGeminiAPI(prompt) {
-            setUiLoading(true, '✨ Gemini is thinking...');
+            setUiLoading(true, '✨ Using Gemini 2.5 Pro API...');
             geminiOutputContainer.classList.remove('hidden');
             geminiOutput.textContent = '';
 
-            const apiKey = "YOUR_API_KEY_HERE"; // IMPORTANT: Replace with your actual API key
+            const apiKey = "AIzaSyBd5Nqt9n5RSbPBzDTAZ1LCBcIw52i4Zkg";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
 
@@ -356,7 +408,7 @@
                     geminiOutput.textContent = text;
                     showSuccess('AI analysis complete!');
                 } else {
-                    throw new Error('No content received from Gemini.');
+                    throw new Error('No content received from Gemini 2.5 Flash');
                 }
             } catch (error) {
                 console.error("Gemini API call failed:", error);
