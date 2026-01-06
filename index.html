@@ -63,7 +63,7 @@
         body {
             background-color: #030712;
             color: #e2e8f0;
-            overflow: hidden; /* Canvas handles background */
+            /* overflow: hidden; Removed to allow scrolling on small screens */
         }
 
         /* Glassmorphism Depth */
@@ -136,186 +136,229 @@
             height: 100%;
             pointer-events: none;
         }
+
+        /* Custom Cursor */
+        body {
+            cursor: none; /* Hide default cursor */
+        }
+        
+        /* Restore default cursor for iframes or fallback if needed */
+        iframe { cursor: auto; }
+
+        #custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.8);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(99, 102, 241, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s cubic-bezier(0.19, 1, 0.22, 1), 
+                        height 0.2s cubic-bezier(0.19, 1, 0.22, 1),
+                        background 0.2s, 
+                        border-color 0.2s;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+            backdrop-filter: blur(1px);
+        }
+
+        /* Cursor Hover State */
+        #custom-cursor.hovering {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(45, 212, 191, 0.3) 0%, rgba(45, 212, 191, 0) 70%);
+            border-color: rgba(45, 212, 191, 0.8);
+            box-shadow: 0 0 30px rgba(45, 212, 191, 0.4);
+        }
     </style>
 </head>
-<body class="h-screen flex items-center justify-center selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white overflow-x-hidden">
 
     <!-- Interactive Background -->
     <canvas id="bg-canvas"></canvas>
+    
+    <!-- Custom Cursor Element -->
+    <div id="custom-cursor"></div>
 
     <!-- Notification Toast Container -->
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3"></div>
 
-    <!-- Main 3D Container -->
-    <div id="tilt-container" class="relative z-10 w-full max-w-5xl px-4 flex gap-6 items-start h-[80vh]">
-        
-        <!-- Left: Main Converter Interface -->
-        <div id="main-card" class="glass-panel w-full md:w-2/3 rounded-3xl p-1 relative flex flex-col h-full">
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 flex items-center justify-center w-full p-4 md:p-8 z-10">
+        <!-- Main 3D Container -->
+        <div id="tilt-container" class="w-full max-w-5xl flex gap-6 items-stretch h-[75vh] min-h-[600px]">
             
-            <!-- Inner Bevel -->
-            <div class="absolute inset-0 rounded-3xl border border-white/5 pointer-events-none"></div>
-
-            <div class="bg-surface/80 rounded-[20px] p-8 h-full flex flex-col relative overflow-hidden">
+            <!-- Left: Main Converter Interface -->
+            <div id="main-card" class="glass-panel w-full md:w-2/3 rounded-3xl p-1 relative flex flex-col h-full">
                 
-                <!-- Decorative Top Bar -->
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-50"></div>
+                <!-- Inner Bevel -->
+                <div class="absolute inset-0 rounded-3xl border border-white/5 pointer-events-none"></div>
 
-                <!-- Header -->
-                <div class="flex justify-between items-center mb-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400">
-                            <i class="fa-solid fa-layer-group"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-bold text-white tracking-tight">pdf2word</h1>
-                            <p class="text-xs text-slate-400 font-mono tracking-wider uppercase">Engine v2.4.0 • Client-Side</p>
-                        </div>
-                    </div>
-                    <div class="hidden sm:flex gap-2 text-xs font-mono text-slate-500">
-                        <span class="px-2 py-1 rounded bg-slate-800/50 border border-slate-700/50">SECURE</span>
-                        <span class="px-2 py-1 rounded bg-slate-800/50 border border-slate-700/50">FAST</span>
-                    </div>
-                </div>
-
-                <!-- Content Area -->
-                <div class="flex-1 relative flex flex-col">
+                <div class="bg-surface/80 rounded-[20px] p-8 h-full flex flex-col relative overflow-hidden">
                     
-                    <!-- View 1: Upload (Dropzone) -->
-                    <div id="view-upload" class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-indigo-500/50 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
-                        <input type="file" id="file-input" class="hidden" accept=".pdf" />
-                        
-                        <!-- Hover Gradient -->
-                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                        
-                        <div class="relative z-10 text-center p-6 transition-transform duration-300 group-hover:-translate-y-2">
-                            <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center shadow-2xl group-hover:shadow-indigo-500/20 group-hover:border-indigo-500/50 transition-all">
-                                <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
+                    <!-- Decorative Top Bar -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-50"></div>
+
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-8 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400">
+                                <i class="fa-solid fa-layer-group"></i>
                             </div>
-                            <h2 class="text-2xl font-bold text-white mb-2">Drop PDF File</h2>
-                            <p class="text-slate-400 max-w-sm mx-auto mb-6">Drag and drop your document here, or click to browse. We handle the heavy lifting locally.</p>
-                            <button class="px-6 py-2 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 text-sm font-medium transition-all">
-                                Browse Files
-                            </button>
+                            <div>
+                                <h1 class="text-2xl font-bold text-white tracking-tight">pdf2word</h1>
+                                <p class="text-xs text-slate-400 font-mono tracking-wider uppercase">Engine v2.4.0 • Client-Side</p>
+                            </div>
+                        </div>
+                        <div class="hidden sm:flex gap-2 text-xs font-mono text-slate-500">
+                            <span class="px-2 py-1 rounded bg-slate-800/50 border border-slate-700/50">SECURE</span>
+                            <span class="px-2 py-1 rounded bg-slate-800/50 border border-slate-700/50">FAST</span>
                         </div>
                     </div>
 
-                    <!-- View 2: Preview & Convert -->
-                    <div id="view-preview" class="hidden flex-1 flex flex-col h-full animate-slide-up">
-                        <div class="flex-1 flex flex-col sm:flex-row gap-6 mb-6 min-h-0">
-                            <!-- Preview Image -->
-                            <div class="w-full sm:w-1/2 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden relative shadow-lg group">
-                                <canvas id="pdf-preview-canvas" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"></canvas>
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
-                                    <span class="text-xs font-mono text-white/70 bg-black/50 px-2 py-1 rounded">Page 1 Preview</span>
+                    <!-- Content Area -->
+                    <div class="flex-1 relative flex flex-col min-h-0">
+                        
+                        <!-- View 1: Upload (Dropzone) -->
+                        <div id="view-upload" class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-indigo-500/50 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                            <input type="file" id="file-input" class="hidden" accept=".pdf" />
+                            
+                            <!-- Hover Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            
+                            <div class="relative z-10 text-center p-6 transition-transform duration-300 group-hover:-translate-y-2">
+                                <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center shadow-2xl group-hover:shadow-indigo-500/20 group-hover:border-indigo-500/50 transition-all">
+                                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
                                 </div>
+                                <h2 class="text-2xl font-bold text-white mb-2">Drop PDF File</h2>
+                                <p class="text-slate-400 max-w-sm mx-auto mb-6">Drag and drop your document here, or click to browse. We handle the heavy lifting locally.</p>
+                                <button class="px-6 py-2 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 text-sm font-medium transition-all">
+                                    Browse Files
+                                </button>
                             </div>
+                        </div>
 
-                            <!-- Metadata & Actions -->
-                            <div class="w-full sm:w-1/2 flex flex-col justify-between">
-                                <div>
-                                    <h3 id="meta-filename" class="text-xl font-bold text-white mb-1 truncate">document.pdf</h3>
-                                    <div class="flex gap-4 text-xs text-slate-400 font-mono mb-6 border-b border-slate-800 pb-4">
-                                        <span id="meta-size"><i class="fa-regular fa-hdd mr-1"></i> 2.4 MB</span>
-                                        <span id="meta-pages"><i class="fa-regular fa-file mr-1"></i> 12 Pages</span>
+                        <!-- View 2: Preview & Convert -->
+                        <div id="view-preview" class="hidden flex-1 flex flex-col h-full animate-slide-up">
+                            <div class="flex-1 flex flex-col sm:flex-row gap-6 mb-6 min-h-0">
+                                <!-- Preview Image -->
+                                <div class="w-full sm:w-1/2 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden relative shadow-lg group">
+                                    <canvas id="pdf-preview-canvas" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"></canvas>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                                        <span class="text-xs font-mono text-white/70 bg-black/50 px-2 py-1 rounded">Page 1 Preview</span>
                                     </div>
-                                    
-                                    <div class="space-y-3">
-                                        <div class="flex justify-between items-center text-sm">
-                                            <span class="text-slate-400">Output Format</span>
-                                            <span class="font-bold text-indigo-400">Word (.doc)</span>
+                                </div>
+
+                                <!-- Metadata & Actions -->
+                                <div class="w-full sm:w-1/2 flex flex-col justify-between overflow-y-auto">
+                                    <div>
+                                        <h3 id="meta-filename" class="text-xl font-bold text-white mb-1 truncate">document.pdf</h3>
+                                        <div class="flex gap-4 text-xs text-slate-400 font-mono mb-6 border-b border-slate-800 pb-4">
+                                            <span id="meta-size"><i class="fa-regular fa-hdd mr-1"></i> 2.4 MB</span>
+                                            <span id="meta-pages"><i class="fa-regular fa-file mr-1"></i> 12 Pages</span>
                                         </div>
-                                        <div class="flex justify-between items-center text-sm">
-                                            <span class="text-slate-400">Engine</span>
-                                            <span class="text-slate-300">V8 / PDF.js</span>
+                                        
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-slate-400">Output Format</span>
+                                                <span class="font-bold text-indigo-400">Word (.doc)</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-slate-400">Engine</span>
+                                                <span class="text-slate-300">V8 / PDF.js</span>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <div class="mt-6 space-y-3">
+                                        <button onclick="startConversion()" id="btn-convert" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                                            <span>Initialize Conversion</span>
+                                            <i class="fa-solid fa-bolt"></i>
+                                        </button>
+                                        <button onclick="resetApp()" class="w-full py-3 bg-transparent hover:bg-slate-800/50 text-slate-400 hover:text-white rounded-xl text-sm font-medium transition-colors">
+                                            Cancel
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div class="mt-6 space-y-3">
-                                    <button onclick="startConversion()" id="btn-convert" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                                        <span>Initialize Conversion</span>
-                                        <i class="fa-solid fa-bolt"></i>
-                                    </button>
-                                    <button onclick="resetApp()" class="w-full py-3 bg-transparent hover:bg-slate-800/50 text-slate-400 hover:text-white rounded-xl text-sm font-medium transition-colors">
-                                        Cancel
-                                    </button>
+                        <!-- View 3: Processing -->
+                        <div id="view-processing" class="hidden flex-1 flex flex-col justify-center items-center text-center animate-slide-up">
+                            <div class="w-24 h-24 relative mb-8">
+                                <div class="absolute inset-0 rounded-full border-2 border-slate-800"></div>
+                                <div class="absolute inset-0 rounded-full border-t-2 border-indigo-500 animate-spin"></div>
+                                <div class="absolute inset-4 rounded-full border-t-2 border-accent-teal animate-spin-slow"></div>
+                                <div class="absolute inset-0 flex items-center justify-center font-mono text-xl font-bold text-white">
+                                    <span id="progress-percent">0</span>%
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-2xl font-bold text-white mb-2">Processing Document</h3>
+                            <p id="process-status" class="text-slate-400 text-sm font-mono mb-8">Initializing extraction matrix...</p>
+
+                            <!-- Terminal Log -->
+                            <div class="w-full max-w-md bg-black/40 rounded-lg border border-slate-800 p-4 h-32 overflow-hidden relative">
+                                <div id="terminal-content" class="text-left font-mono text-xs text-green-400/80 space-y-1 h-full overflow-y-auto terminal-scroll p-1">
+                                    <div>> System initialized</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- View 3: Processing -->
-                    <div id="view-processing" class="hidden flex-1 flex flex-col justify-center items-center text-center animate-slide-up">
-                        <div class="w-24 h-24 relative mb-8">
-                            <div class="absolute inset-0 rounded-full border-2 border-slate-800"></div>
-                            <div class="absolute inset-0 rounded-full border-t-2 border-indigo-500 animate-spin"></div>
-                            <div class="absolute inset-4 rounded-full border-t-2 border-accent-teal animate-spin-slow"></div>
-                            <div class="absolute inset-0 flex items-center justify-center font-mono text-xl font-bold text-white">
-                                <span id="progress-percent">0</span>%
+                        <!-- View 4: Success -->
+                        <div id="view-success" class="hidden flex-1 flex flex-col justify-center items-center text-center animate-slide-up">
+                            <div class="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6 ring-1 ring-green-500/50 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                                <i class="fa-solid fa-check text-4xl text-green-400"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-white mb-2">Ready to Deploy</h2>
+                            <p class="text-slate-400 mb-8">Conversion successful. File repackaged.</p>
+                            
+                            <div class="flex gap-4 w-full max-w-xs">
+                                <button onclick="downloadFile()" class="flex-1 py-3 bg-white text-black hover:bg-slate-200 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-download"></i> Download
+                                </button>
+                                <button onclick="resetApp()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
                             </div>
                         </div>
-                        
-                        <h3 class="text-2xl font-bold text-white mb-2">Processing Document</h3>
-                        <p id="process-status" class="text-slate-400 text-sm font-mono mb-8">Initializing extraction matrix...</p>
 
-                        <!-- Terminal Log -->
-                        <div class="w-full max-w-md bg-black/40 rounded-lg border border-slate-800 p-4 h-32 overflow-hidden relative">
-                            <div id="terminal-content" class="text-left font-mono text-xs text-green-400/80 space-y-1 h-full overflow-y-auto terminal-scroll p-1">
-                                <div>> System initialized</div>
-                            </div>
-                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- View 4: Success -->
-                    <div id="view-success" class="hidden flex-1 flex flex-col justify-center items-center text-center animate-slide-up">
-                        <div class="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6 ring-1 ring-green-500/50 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                            <i class="fa-solid fa-check text-4xl text-green-400"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold text-white mb-2">Ready to Deploy</h2>
-                        <p class="text-slate-400 mb-8">Conversion successful. File repackaged.</p>
-                        
-                        <div class="flex gap-4 w-full max-w-xs">
-                            <button onclick="downloadFile()" class="flex-1 py-3 bg-white text-black hover:bg-slate-200 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-download"></i> Download
-                            </button>
-                            <button onclick="resetApp()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all">
-                                <i class="fa-solid fa-rotate-right"></i>
-                            </button>
-                        </div>
+            <!-- Right: Session History (Hidden on mobile) -->
+            <div class="hidden md:flex flex-col w-1/3 h-full gap-4">
+                
+                <!-- Stats Panel -->
+                <div class="glass-panel rounded-3xl p-6 h-1/3 flex flex-col justify-center relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
+                    <h3 class="text-slate-400 text-sm font-medium mb-4 uppercase tracking-wider">Session Stats</h3>
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-4xl font-bold text-white" id="stat-count">0</span>
+                        <span class="text-indigo-400 text-sm mb-1">Files Converted</span>
                     </div>
+                    <div class="tech-loader"></div>
+                </div>
 
+                <!-- Recent Files -->
+                <div class="glass-panel rounded-3xl p-6 h-2/3 flex flex-col">
+                    <h3 class="text-slate-400 text-sm font-medium mb-4 uppercase tracking-wider">Recent Output</h3>
+                    <div id="history-list" class="flex-1 overflow-y-auto pr-2 space-y-3">
+                        <!-- History Items will be injected here -->
+                        <div class="text-center text-slate-600 text-xs mt-10 italic">No conversions yet</div>
+                    </div>
                 </div>
             </div>
+
         </div>
-
-        <!-- Right: Session History (Hidden on mobile) -->
-        <div class="hidden md:flex flex-col w-1/3 h-full gap-4">
-            
-            <!-- Stats Panel -->
-            <div class="glass-panel rounded-3xl p-6 h-1/3 flex flex-col justify-center relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
-                <h3 class="text-slate-400 text-sm font-medium mb-4 uppercase tracking-wider">Session Stats</h3>
-                <div class="flex justify-between items-end mb-2">
-                    <span class="text-4xl font-bold text-white" id="stat-count">0</span>
-                    <span class="text-indigo-400 text-sm mb-1">Files Converted</span>
-                </div>
-                <div class="tech-loader"></div>
-            </div>
-
-            <!-- Recent Files -->
-            <div class="glass-panel rounded-3xl p-6 h-2/3 flex flex-col">
-                <h3 class="text-slate-400 text-sm font-medium mb-4 uppercase tracking-wider">Recent Output</h3>
-                <div id="history-list" class="flex-1 overflow-y-auto pr-2 space-y-3">
-                    <!-- History Items will be injected here -->
-                    <div class="text-center text-slate-600 text-xs mt-10 italic">No conversions yet</div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Footer Section -->
-    <div class="fixed bottom-4 left-0 w-full z-40 flex flex-col items-center justify-end pointer-events-none">
+    <div class="relative w-full z-40 flex flex-col items-center justify-end pointer-events-none pb-4 md:pb-6 mt-4">
         <div class="pointer-events-auto flex flex-col items-center gap-2 p-4">
             <!-- Social Icons -->
             <div class="flex gap-4 mb-1">
@@ -401,25 +444,36 @@
         }
         animateParticles();
 
-        /* --- VISUALS: 3D TILT EFFECT --- */
-        const container = document.getElementById('tilt-container');
-        const card = document.getElementById('main-card');
-
-        container.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        /* --- VISUALS: CUSTOM CURSOR --- */
+        const cursor = document.getElementById('custom-cursor');
+        
+        // Track Mouse Movement
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
         });
 
-        container.addEventListener('mouseenter', () => {
-            card.style.transition = 'none';
+        // Hover Effect Logic
+        // Use event delegation for better performance and dynamic elements
+        document.body.addEventListener('mouseover', (e) => {
+            if (e.target.closest('button') || 
+                e.target.closest('a') || 
+                e.target.closest('input') || 
+                e.target.closest('.group') ||
+                e.target.tagName === 'I') {
+                cursor.classList.add('hovering');
+            }
         });
 
-        container.addEventListener('mouseleave', () => {
-            card.style.transition = 'transform 0.5s ease';
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        document.body.addEventListener('mouseout', (e) => {
+            if (e.target.closest('button') || 
+                e.target.closest('a') || 
+                e.target.closest('input') || 
+                e.target.closest('.group') ||
+                e.target.tagName === 'I') {
+                cursor.classList.remove('hovering');
+            }
         });
-
 
         /* --- APP LOGIC --- */
         const fileInput = document.getElementById('file-input');
@@ -537,13 +591,17 @@
                     let pageText = "";
                     
                     textContent.items.forEach(item => {
-                        if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 5) {
+                        // Safety check: ensure transform exists before accessing it
+                        const hasTransform = item.transform && item.transform.length >= 6;
+                        const currentY = hasTransform ? item.transform[5] : lastY;
+
+                        if (lastY !== -1 && Math.abs(currentY - lastY) > 5) {
                             pageText += "<br/>";
                         } else {
                             pageText += " ";
                         }
                         pageText += item.str;
-                        lastY = item.transform[5];
+                        if (hasTransform) lastY = currentY;
                     });
 
                     docContent += `<p>${pageText}</p><br clear='all' style='page-break-before:always' />`;
